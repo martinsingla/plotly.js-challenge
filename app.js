@@ -1,4 +1,3 @@
-////////////////////////////////////////////////////////////
 
 //Defining functions & variables
 
@@ -30,7 +29,63 @@ function updateTop10Chart(data){
     data.samples.forEach(i => {
         if(parseInt(i.id) === parseInt(findChosenID())){
             var sampleData = i;
-            console.log(sampleData)
+            console.log(sampleData);
+
+            d3.select('bar').html("")
+
+            var data = [{
+             type: 'bar',
+                x: sampleData.sample_values.slice(0,10).reverse(),
+                y: sampleData.otu_ids.slice(0,10).map(k => `OTU ${k}`).reverse(),
+                text: sampleData.otu_labels.slice(0,10).reverse(),
+                orientation: 'h'
+              }];
+            
+            var layout = {
+                title: {text: 'Most Frequent OTU in Sample'},
+                xaxis: {
+                    title: {text: 'OTU Values'}
+                }
+            };
+        
+            Plotly.newPlot('bar', data, layout);
+        }
+    })
+}
+
+//Create Bubble Chart
+function updateBubbleChart(data) {
+    //find data for chosen ID sample
+    data.samples.forEach(i => {
+        if (parseInt(i.id) === parseInt(findChosenID())) {
+            var sampleData = i;
+            console.log(sampleData);
+
+            d3.select('bubble').html("")
+
+            var data = [{
+                type: 'scatter',
+                mode:'markers',
+                x: sampleData.otu_ids,
+                y: sampleData.sample_values,
+                text: sampleData.otu_labels,
+                marker: {
+                    color: sampleData.otu_ids,
+                    size: sampleData.sample_values
+                }
+            }];
+
+            var layout = {
+                title: {text: 'Bacteria OTU IDs and Frequency in Subject Sample'},
+                yaxis: {
+                    title: {text: 'OTU Values'}
+                },
+                xaxis: {
+                    title: {text: 'OTU IDs'}
+                }
+            };
+
+            Plotly.newPlot('bubble', data, layout);
         }
     })
 }
@@ -42,11 +97,13 @@ function changeHandler(){
         var data = importData;
         updateDemographics(data);
         updateTop10Chart(data);
+        updateBubbleChart(data);
     })
 }
 
 ////////////////////////////////////////////////////////////
-//initiate App
+
+//Initiate App
 
 d3.json('./data/samples.json').then(function(importData){
     var data = importData;
@@ -64,6 +121,7 @@ d3.json('./data/samples.json').then(function(importData){
     //Assign table & graphs
     updateDemographics(data);
     updateTop10Chart(data);
+    updateBubbleChart(data);
 
 });
 
